@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include <FastLED.h>
 #include "point.h"
 
@@ -23,7 +25,10 @@ void setup() {
 }
 
 void loop() {
-  FastLED.clear();
+//  FastLED.clear();
+  for (int i=0; i<NUM_LEDS; i++) {
+    leds[i].fadeToBlackBy( 90 );
+  }
   for (int i=0; i<NUM_POINTS; i++) {
     drawPoint(points[i], leds, pixelPos, NUM_LEDS);
     updatePoint(points[i]);

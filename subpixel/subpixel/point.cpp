@@ -16,6 +16,12 @@ void updatePoint(Point &point) {
       point.pos = TWOPI;
     }
     point.hue = (point.hue + random8(3)) % 255;
+    if (random8(2) == 0) {
+      point.speed += 0.001;
+    } else {
+      point.speed -= 0.001;
+    }
+    
 }
 
 float angleDiff(float angle1, float angle2) {
