@@ -18,15 +18,11 @@ void larsonScanner()
 {
   point = (point + velocity);  
   
-  if (point > 0.95) {
-//    point = 0.0;
+  if (point > 0.95 || point < 0.05) {
     velocity *= -1;
   }
-  if (point < 0.05) {
-//    point = 1.0;
-    velocity *= -1;
-  }
-  int h = 128;
+
+  int h = 0;
   int s = 255;
   int v = 255;
 
@@ -42,6 +38,7 @@ void larsonScanner()
       leds[i] = CRGB( 0,0,0);    
     }
   }
+  FastLED.setBrightness(255);
   FastLED.show();
 }
 
@@ -58,6 +55,22 @@ void workingLight() {
   FastLED.show();
 }
 
+void fadeInWorkingLight() {
+  for (uint16_t i = 0; i < 256; i++) {
+    FastLED.setBrightness(i);
+    workingLight();
+    FastLED.delay(1);
+  }
+}
+
+void fadeOutWorkingLight() {
+  for (uint16_t i = 255; i >= 0; i--) {
+    FastLED.setBrightness(i);
+    workingLight();
+    FastLED.delay(1);
+  }
+}
+
 void allRed() {
   for (uint16_t i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB(255, 0, 0);    
@@ -66,7 +79,7 @@ void allRed() {
 }
 void allBlue() {
   for (uint16_t i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(0, 0, 255);    
+    leds[i] = CRGB(constrain(dt, 0, 255), 0, 0);    
   }
   FastLED.show();
 }
