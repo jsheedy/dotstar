@@ -11,6 +11,8 @@ void setup() {
   // APA102 is dotstars https://github.com/FastLED/FastLED/wiki/Chipset-reference
   // using SPI pins: 11-data, 13-clock
   FastLED.addLeds<APA102, BGR>(leds, NUM_LEDS);
+  clear();
+
 }
 
 unsigned long t;
@@ -20,27 +22,38 @@ unsigned long dt;
 unsigned long idleTime = 1024;
 
 //FSM
+State Noop = State(noopUpdate);
 State On = State(onEnter, onUpdate, onExit);
 State Off = State(offEnter, offUpdate, offExit);
-FSM fsm = FSM(Off);
+FSM fsm = FSM(Noop);
+
+void noopUpdate() {}
 
 void onUpdate(){
-//  workingLight();
-  allBlue();
+  workingLight();
 }
 void onEnter() {
-//  fadeInWorkingLight();
+  fadeInWorkingLight();
 }
 void onExit() {
 //  fadeOutWorkingLight();
+  allBlue();
+  FastLED.delay(1000);
 }
 
 void offUpdate(){
   larsonScanner();  
 }
 
-void offEnter() {}
-void offExit() {}
+void offEnter() {
+  fadeInLarsonScanner();
+}
+
+void offExit() {
+//  fadeOutLarsonScanner();
+  allRed();
+  FastLED.delay(1000);
+}
 
 void loop() {
   // input from mic. twice to allow pin to settle
