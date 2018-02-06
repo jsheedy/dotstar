@@ -4,10 +4,13 @@
 #define NUM_LEDS 60 // Number of LEDs in strip
 #define POT_PIN A5
 #define MIC_PIN A1
+#define PIEZO_PIN 8
 
 CRGB leds[NUM_LEDS];
 
 void setup() {
+
+  wakeUpSound();
   // APA102 is dotstars https://github.com/FastLED/FastLED/wiki/Chipset-reference
   // using SPI pins: 11-data, 13-clock
   FastLED.addLeds<APA102, BGR>(leds, NUM_LEDS);
