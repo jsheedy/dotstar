@@ -1,7 +1,7 @@
 #include <FastLED.h>
 #include <FiniteStateMachine.h>
 
-#define NUM_LEDS 60 // Number of LEDs in strip
+#define NUM_LEDS 60
 #define POT_PIN A5
 #define MIC_PIN A1
 #define PIEZO_PIN 8
@@ -15,14 +15,12 @@ void setup() {
   // using SPI pins: 11-data, 13-clock
   FastLED.addLeds<APA102, BGR>(leds, NUM_LEDS);
   clear();
-
 }
 
-unsigned long t;
-unsigned long t0;
-unsigned long dt;
-
-unsigned long idleTime = 1024;
+unsigned long t=millis();
+unsigned long t0=t;
+unsigned long dt=0;
+unsigned long IDLE_TIME=3000;
 
 //FSM
 State Noop = State(noopUpdate);
@@ -30,58 +28,48 @@ State On = State(onEnter, onUpdate, onExit);
 State Off = State(offEnter, offUpdate, offExit);
 FSM fsm = FSM(Noop);
 
-void noopUpdate() {}
+void noopUpdate() {
+    debugLED(1, 0, 0, 255);
+}
 
 void onUpdate(){
   workingLight();
 }
 void onEnter() {
-  fadeInWorkingLight();
+  fadeIn(300, workingLight);
 }
 void onExit() {
-//  fadeOutWorkingLight();
-  allBlue();
-  FastLED.delay(1000);
+  fadeOut(1500, workingLight);
 }
 
 void offUpdate(){
   larsonScanner();  
 }
-
 void offEnter() {
-  fadeInLarsonScanner();
+  fadeIn(1500, larsonScanner);
 }
-
 void offExit() {
-//  fadeOutLarsonScanner();
-  allRed();
-  FastLED.delay(1000);
+  fadeOut(300, larsonScanner);
 }
 
 void loop() {
-  // input from mic. twice to allow pin to settle
-  analogRead(MIC_PIN);
-  delay(1);
-  unsigned int soundVal = analogRead(MIC_PIN);
-  
-  analogRead(POT_PIN);
-  delay(1);
-  unsigned int potVal = analogRead(POT_PIN);
   
   t = millis();
+  
+  unsigned int soundVal = analogRead(MIC_PIN);
+  unsigned int potVal = analogRead(POT_PIN);
+  
   if (soundVal > potVal) {
     t0 = t;    
   }
   dt = t - t0;
-  if (dt <= idleTime) {
-    if (!fsm.isInState(On)) {
-      fsm.transitionTo(On);  
-    }
+  
+  if (dt <= IDLE_TIME && !fsm.isInState(On)) {
+    fsm.transitionTo(On);  
   }
-  else if (!fsm.isInState(Off)) {
+  else if (dt > IDLE_TIME && !fsm.isInState(Off)) {
     fsm.transitionTo(Off);
   }
 
-  fsm.update();
-//  FastLED.delay(1);
+  fsm.update();  
 }

@@ -15,9 +15,7 @@ float deltaPoints(float p1, float p2) {
 }
 
 void larsonScanner()
-{
-//  point = (point + velocity);  
-  
+{  
   if (point > 0.95 || point < 0.05) {
     velocity *= -1;
   }
@@ -40,23 +38,48 @@ void larsonScanner()
   }
   FastLED.show();
 }
-void fadeOutLarsonScanner() {
-  for (uint16_t i = 255; i >= 0; i--) {
-    FastLED.setBrightness(i);
-    larsonScanner();
-    FastLED.delay(3);
+
+void workingLight() {
+  for (uint16_t i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB(0,12,0);    
   }
-  FastLED.delay(500);
-}
-void fadeInLarsonScanner() {
-  for (uint16_t i = 0; i < 256; i++) {
-    FastLED.setBrightness(i);
-    larsonScanner();
-    FastLED.delay(3);
-  }
-  FastLED.delay(500);
+  FastLED.show();
 }
 
+void fadeOut(int t, void (*f)()) {
+  int stepsPerSecond = 30;
+  int nSteps = t / stepsPerSecond;
+  int stepSize = 256 / nSteps;
+  for (int i = 255; i >= 0; i-=stepSize) {
+    FastLED.setBrightness(i);
+    f();
+    FastLED.delay(1000 / stepsPerSecond);
+  }
+}
+
+void fadeIn(int t, void (*f)()) {
+  int stepsPerSecond = 30;
+  int nSteps = t / stepsPerSecond;
+  int stepSize = 256 / nSteps;
+  for (uint16_t i = 0; i < 256; i+=stepSize) {
+    FastLED.setBrightness(i);
+    f();
+    FastLED.delay(1000 / stepsPerSecond);
+  }
+}
+
+void allRed() {
+  for (uint16_t i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB(15, 0, 0);    
+  }
+  FastLED.show();
+}
+void allBlue() {
+  for (uint16_t i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB(0, 0, 15);    
+  }
+  FastLED.show();
+}
 
 void simpleGradient() {
   for (int i = 0; i < NUM_LEDS; i++) {
@@ -71,42 +94,8 @@ void clear() {
   }
   FastLED.show();
 }
-
-void workingLight() {
-  for (uint16_t i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(0,12,0);    
-  }
-  FastLED.show();
-}
-
-void fadeInWorkingLight() {
-  for (uint16_t i = 0; i < 256; i++) {
-    FastLED.setBrightness(i);
-    workingLight();
-    FastLED.delay(2);
-  }
-  FastLED.delay(200);
-}
-
-void fadeOutWorkingLight() {
-  for (uint16_t i = 255; i >= 0; i--) {
-    FastLED.setBrightness(i);
-    workingLight();
-    FastLED.delay(2);
-  }
-  FastLED.delay(200);
-}
-
-void allRed() {
-  for (uint16_t i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(15, 0, 0);    
-  }
-  FastLED.show();
-}
-void allBlue() {
-  for (uint16_t i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(0, 0, 15);    
-  }
+void debugLED(int i, int r,int g,int b) {
+  leds[i] = CRGB(r,g,b);
   FastLED.show();
 }
   
