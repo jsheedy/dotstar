@@ -1,5 +1,4 @@
 
-float velocity = 0.002;
 float width = 0.05;
 float point = 0.5;
 
@@ -16,11 +15,15 @@ float deltaPoints(float p1, float p2) {
 
 void larsonScanner()
 {  
-  point += velocity;
-  if (point > 0.95 || point < 0.05) {
-    velocity *= -1.0;
-  }
 
+  int milli = (t % 1000);
+  int second = (t / 1000) % 2;
+  if (second == 0) {
+    point = 0.05 + (float)milli / 1000.0 * 0.9;  
+  } else {
+    point = 0.05 + (float)(1000 - milli) / 1000.0 * 0.9;
+  }
+  
   int h = 0;
   int s = 255;
   int v = 255;
@@ -53,26 +56,31 @@ void workingLight() {
   FastLED.show();
 }
 
-void fadeOut(int t, void (*f)()) {
-  int stepsPerSecond = 30;
-  int nSteps = t / stepsPerSecond;
-  int stepSize = 256 / nSteps;
-  for (int i = 255; i >= 0; i-=stepSize) {
-    FastLED.setBrightness(i);
+void fade(int _t, void(*f)(), bool fadeIn) {
+  unsigned long _t0 = millis();
+  int _dt = 0;
+  uint8_t b;
+  int _b;
+  while(_dt < _t) {
+    _b = (int)((float)_dt/(float)_t * 255.0);
+    if (fadeIn) {
+      b = dim8_lin(_b);  
+    } else {
+      b = 255-dim8_lin(_b);
+    }
+    FastLED.setBrightness(b);
     f();
-    FastLED.delay(1000 / stepsPerSecond);
+    t = millis();
+    _dt = t - _t0;
   }
 }
 
-void fadeIn(int t, void (*f)()) {
-  int stepsPerSecond = 30;
-  int nSteps = t / stepsPerSecond;
-  int stepSize = 256 / nSteps;
-  for (uint16_t i = 0; i < 256; i+=stepSize) {
-    FastLED.setBrightness(i);
-    f();
-    FastLED.delay(1000 / stepsPerSecond);
-  }
+void fadeOut(int _t, void (*f)()) {
+  fade(_t, f, false);
+}
+
+void fadeIn(int _t, void (*f)()) {
+  fade(_t, f, true);
 }
 
 void allRed() {

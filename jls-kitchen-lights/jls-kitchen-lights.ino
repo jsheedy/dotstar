@@ -7,7 +7,8 @@
 
 #define DEBUG true
 
-#define NUM_LEDS 38
+#define NUM_LEDS 60 //38
+#define FRAME_RATE 30
 
 unsigned long t=millis();
 unsigned long t0=t;
@@ -47,10 +48,10 @@ void onUpdate(){
   workingLight();
 }
 void onEnter() {
-  fadeIn(300, workingLight);
+  fadeIn(500, workingLight);
 }
 void onExit() {
-  fadeOut(1500, workingLight);
+  fadeOut(3000, workingLight);
 }
 
 void offUpdate(){
@@ -58,10 +59,10 @@ void offUpdate(){
   larsonScanner();  
 }
 void offEnter() {
-  fadeIn(1500, larsonScanner);
+  fadeIn(3000, larsonScanner);
 }
 void offExit() {
-  fadeOut(300, larsonScanner);
+  fadeOut(500, larsonScanner);
 }
 
 void loop() {
