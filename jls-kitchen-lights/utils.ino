@@ -1,7 +1,4 @@
 
-float width = 0.05;
-float point = 0.5;
-
 float deltaPoints(float p1, float p2) {
   float diff = (p2 - p1);
   if (diff > 0.5) {
@@ -15,6 +12,8 @@ float deltaPoints(float p1, float p2) {
 
 void larsonScanner()
 {  
+  float width = 0.05;
+  float point;
 
   int milli = (t % 1000);
   int second = (t / 1000) % 2;
