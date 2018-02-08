@@ -1,5 +1,5 @@
 
-float velocity = 0.005;
+float velocity = 0.002;
 float width = 0.05;
 float point = 0.5;
 
@@ -16,8 +16,9 @@ float deltaPoints(float p1, float p2) {
 
 void larsonScanner()
 {  
+  point += velocity;
   if (point > 0.95 || point < 0.05) {
-    velocity *= -1;
+    velocity *= -1.0;
   }
 
   int h = 0;
@@ -41,7 +42,13 @@ void larsonScanner()
 
 void workingLight() {
   for (uint16_t i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB(0,12,0);    
+    // breadboard circuit can't handle current from full blast LEDs 
+    if(DEBUG) {
+      leds[i] = CRGB(0,12,0);  
+    }
+    else {
+      leds[i] = CRGB(255,255,255);    
+    }
   }
   FastLED.show();
 }
