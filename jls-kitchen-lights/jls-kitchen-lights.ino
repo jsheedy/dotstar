@@ -5,22 +5,22 @@
 #define MIC_PIN A1
 #define PIEZO_PIN 8
 
-#define DEBUG true
+#define DEBUG false
 
 #define NUM_LEDS 60 //38
-#define FRAME_RATE 30
+#define MAX_BRIGHTNESS 64 // keep this a power of 2 for FastLED reasons (see docs for scale8() )
 
 unsigned long t=millis();
 unsigned long t0=t;
 unsigned long dt=0;
-unsigned long IDLE_TIME=5000;
+unsigned long IDLE_TIME=1000;
+unsigned long TRANSITION_ON_TIME=500;
+unsigned long TRANSITION_OFF_TIME=1000;
 
 CRGB leds[NUM_LEDS];
 
 void setup() {
-  if (DEBUG) {
-    IDLE_TIME=1000;
-  }
+
   wakeUpSound();
   // APA102 is dotstars https://github.com/FastLED/FastLED/wiki/Chipset-reference
   // using SPI pins: 11-data, 13-clock
@@ -28,9 +28,9 @@ void setup() {
   clear();
   // warm up inputs / sacrifice chicken
   analogRead(MIC_PIN);
-  delay(2);
+  delay(20);
   analogRead(POT_PIN);
-  delay(2);
+  delay(20);
 }
 
 //FSM
@@ -44,25 +44,25 @@ void noopUpdate() {
 }
 
 void onUpdate(){
-  FastLED.setBrightness(255);
+  FastLED.setBrightness(MAX_BRIGHTNESS);
   workingLight();
 }
 void onEnter() {
-  fadeIn(500, workingLight);
+  fadeIn(TRANSITION_ON_TIME, workingLight);
 }
 void onExit() {
-  fadeOut(3000, workingLight);
+  fadeOut(TRANSITION_OFF_TIME, workingLight);
 }
 
 void offUpdate(){
-  FastLED.setBrightness(255);
+  FastLED.setBrightness(MAX_BRIGHTNESS);
   larsonScanner();  
 }
 void offEnter() {
-  fadeIn(3000, larsonScanner);
+  fadeIn(TRANSITION_OFF_TIME, larsonScanner);
 }
 void offExit() {
-  fadeOut(500, larsonScanner);
+  fadeOut(TRANSITION_ON_TIME, larsonScanner);
 }
 
 void loop() {
@@ -71,18 +71,23 @@ void loop() {
   
   unsigned int soundVal = analogRead(MIC_PIN);
   unsigned int potVal = analogRead(POT_PIN);
-  
-  if (soundVal > potVal) {
+  IDLE_TIME = potVal * 30;
+  unsigned long threshold = 1023;
+  if (soundVal < threshold) {
     t0 = t;    
   }
   dt = t - t0;
   
-  if (dt <= IDLE_TIME && !fsm.isInState(On)) {
+  if (dt <= (IDLE_TIME+TRANSITION_OFF_TIME) && !fsm.isInState(On)) {
     fsm.transitionTo(On);  
   }
-  else if (dt > IDLE_TIME && !fsm.isInState(Off)) {
+  else if (dt > (IDLE_TIME+TRANSITION_ON_TIME) && !fsm.isInState(Off)) {
     fsm.transitionTo(Off);
   }
 
   fsm.update();  
-}
+  
+//  debugLED(1, soundVal / 4, 0, 0);
+//  debugLED(2, potVal / 4, 0, 0);
+
+} 

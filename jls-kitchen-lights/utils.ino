@@ -15,12 +15,13 @@ void larsonScanner()
   float width = 0.05;
   float point;
 
-  int milli = (t % 1000);
-  int second = (t / 1000) % 2;
+  unsigned long period = 2500;
+  int milli = (t % period);
+  int second = (t / period) % 2;
   if (second == 0) {
-    point = 0.05 + (float)milli / 1000.0 * 0.9;  
+    point = 0.05 + (float)milli / (float)period * 0.9;  
   } else {
-    point = 0.05 + (float)(1000 - milli) / 1000.0 * 0.9;
+    point = 0.05 + (float)(period - milli) / (float)period * 0.9;
   }
   
   int h = 0;
@@ -40,6 +41,7 @@ void larsonScanner()
     }
   }
   FastLED.show();
+  FastLED.delay(10);
 }
 
 void workingLight() {
@@ -55,19 +57,21 @@ void workingLight() {
   FastLED.show();
 }
 
-void fade(int _t, void(*f)(), bool fadeIn) {
+void fade(unsigned long _t, void(*f)(), bool fadeIn) {
   unsigned long _t0 = millis();
-  int _dt = 0;
+  long _dt = 0;
   uint8_t b;
   int _b;
   while(_dt < _t) {
-    _b = (int)((float)_dt/(float)_t * 255.0);
+    _b = (uint8_t)((float)_dt/(float)_t * 255.0);
     if (fadeIn) {
       b = dim8_lin(_b);  
     } else {
-      b = 255-dim8_lin(_b);
+      b = 255 - brighten8_lin(_b);
     }
+    b = scale8(b, MAX_BRIGHTNESS);
     FastLED.setBrightness(b);
+    FastLED.delay(3);
     f();
     t = millis();
     _dt = t - _t0;
