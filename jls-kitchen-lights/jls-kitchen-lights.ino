@@ -2,7 +2,9 @@
 #include <FiniteStateMachine.h>
 
 #define POT_PIN A5
-#define MIC_PIN A1
+#define MIC_PIN 4
+// #define MIC_PIN A1
+
 #define PIEZO_PIN 8
 
 #define DEBUG false
@@ -26,9 +28,10 @@ void setup() {
   // using SPI pins: 11-data, 13-clock
   FastLED.addLeds<APA102, BGR>(leds, NUM_LEDS);
   clear();
-  // warm up inputs / sacrifice chicken
-  analogRead(MIC_PIN);
-  delay(20);
+  pinMode(MIC_PIN, INPUT_PULLUP);
+  // warm up input / sacrifice chicken
+//  analogRead(MIC_PIN);
+//  delay(20);
   analogRead(POT_PIN);
   delay(20);
 }
@@ -68,12 +71,12 @@ void offExit() {
 void loop() {
   
   t = millis();
-  
-  unsigned int soundVal = analogRead(MIC_PIN);
+
+  bool soundOn = digitalRead(MIC_PIN);
   unsigned int potVal = analogRead(POT_PIN);
   IDLE_TIME = potVal * 30;
-  unsigned long threshold = 1023;
-  if (soundVal < threshold) {
+  // logic low means sound detected
+  if (!soundOn) {
     t0 = t;    
   }
   dt = t - t0;
@@ -85,7 +88,9 @@ void loop() {
     fsm.transitionTo(Off);
   }
 
-  fsm.update();  
+  fsm.update();
+
+  FastLED.delay(2);
   
 //  debugLED(1, soundVal / 4, 0, 0);
 //  debugLED(2, potVal / 4, 0, 0);

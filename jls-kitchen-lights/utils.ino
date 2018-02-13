@@ -24,7 +24,7 @@ void larsonScanner()
     point = 0.05 + (float)(period - milli) / (float)period * 0.9;
   }
   
-  int h = 0;
+  int h = (sin16((t )) + 32767) / 256;
   int s = 255;
   int v = 255;
 
